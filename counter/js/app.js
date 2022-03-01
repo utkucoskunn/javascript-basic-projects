@@ -25,3 +25,4 @@ btns.forEach(function (btn){
         number.textContent=count;
     });
 })
+
