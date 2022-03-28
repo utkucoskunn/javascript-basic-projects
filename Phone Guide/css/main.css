@@ -24,3 +24,18 @@ form{
     justify-content: center;
     margin-left: 25%;
 }
+
+.btn-edit{
+    margin-top: 2px;
+    margin-right: 3px;
+    background-color: transparent;
+    color: green;
+    border: none;
+
+}
+.btn-delete{
+    margin-top: 2px;
+    background-color: transparent;
+    color: red;
+    border: none;
+}

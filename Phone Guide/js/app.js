@@ -3,9 +3,11 @@ const surname = document.getElementById('surname');
 const mail = document.getElementById('mail');
 const info = document.querySelector(".info");
 const form = document.querySelector('.btn');
+const personList = document.querySelector('.person-list');
 
 form.addEventListener("click", save);
 
+const tumKisilerDizi=[];
 //*****************************************************************************************
 
 function save(e) {
@@ -19,23 +21,34 @@ function save(e) {
 
     const durum = control(person);
     bilgiolustur(durum);
+   addPerson(person);
 
+}
 
+const addPerson = (person) => {
+    const trElement = document.createElement('tr');
+    trElement.innerHTML =
+        `<td>${person.name}</td>
+        <td>${person.surname}</td>
+        <td>${person.mail}</td>
+        <td>  
+        <button class="btn-edit"> <i class="bi bi-pencil-square"></i></button>
+        <button class="btn-delete"><i class="bi bi-trash"></i></button> 
+        </td>`;
+
+    document.querySelector(".table").appendChild(trElement);
+    tumKisilerDizi.push(person);
 }
 
 function control(person) {
     let result;
     for (let info in person) {
-        if (person[info]) {
-            result = true;
-        } else {
-            result = false;
-        }
+        result = !!person[info];
     }
     return result;
 }
 
-const bilgiolustur=(durum) => {
+const bilgiolustur = (durum) => {
 
     const olusturulanBilgi = document.createElement('div')
     olusturulanBilgi.className = 'alert';
@@ -51,7 +64,11 @@ const bilgiolustur=(durum) => {
     }
 
     document.querySelector(".main-container").appendChild(olusturulanBilgi);
-    setTimeout(function (){
+    setTimeout(function () {
         document.querySelector('.alert').remove();
-    },2000)
+    }, 2000)
+    labelCleaner();
+}
+const labelCleaner = () => {
+
 }
