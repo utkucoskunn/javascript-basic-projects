@@ -1,17 +1,17 @@
+//****CLASS************************************************************************************************************>
 class Kisi {
     constructor(ad, soyad, mail) {
-        this.ad= ad;
+        this.ad = ad;
         this.soyad = soyad;
         this.mail = mail;
     }
 }
 
-//*********************************************************************************************************************
+//****CLASS************************************************************************************************************>
 class Util {
     static bosAlanKontrolEt(...alanlar) {
         let sonuc = true;
         alanlar.forEach(alan => {
-            console.log("kontrol")
             if (alan.length === 0) {
                 sonuc = false;
                 return false;
@@ -21,20 +21,49 @@ class Util {
     }
 }
 
-//*********************************************************************************************************************
+//*********************************************************************************************************************>
 class Ekran {
     constructor() {
-       this.ad = document.getElementById('ad');
+        this.ad = document.getElementById('ad');
         this.soyad = document.getElementById('soyad');
         this.mail = document.getElementById('mail');
         this.ekleGuncelleButton = document.querySelector('.btn')
-        this.form = document.getElementById('form-rehber').addEventListener('submit',this.kaydetGuncelle.bind(this));
+        this.form = document.getElementById('form-rehber').addEventListener('submit', this.kaydetGuncelle.bind(this));
         this.kisiListesi = document.querySelector(".person-list");
+        this.kisiListesi.addEventListener('click', this.guncelleVeyaSil.bind(this));
         this.depo = new Depo();
+        this.secilenSatir = undefined;
+        this.kisileriEkranaYazdir();
     }
 
+    //******METHOD******************************************************************************************************>
+    guncelleVeyaSil(e) {
+        const tiklanmaYeri = e.target;
+        if (tiklanmaYeri.classList.contains('btn-delete')) {
+            this.secilenSatir = tiklanmaYeri.parentElement.parentElement;
+            this.kisiyiEkrandanSil();
+        } else if (tiklanmaYeri.classList.contains('btn-edit')) {
+
+        }
+    }
+
+    //******METHOD******************************************************************************************************>
+    kisiyiEkrandanSil() {
+        this.secilenSatir.remove();
+        const silinecekMail = this.secilenSatir.cells[2].textContent;
+
+        this.depo.kisiSil(silinecekMail);
+        this.secilenSatir = undefined;
+    }
+
+    //******METHOD******************************************************************************************************>
+    kisileriEkranaYazdir() {
+        this.depo.tumKisiler.forEach(kisi =>
+            this.kisiyiEkranaEkle(kisi));
+    }
+
+    //******METHOD*****************************************************************************************************>
     kisiyiEkranaEkle(kisi) {
-        console.log("ekrana ekle")
         const olusturulanTr = document.createElement('tr');
         olusturulanTr.innerHTML =
             ` <tr>
@@ -49,29 +78,32 @@ class Ekran {
         this.kisiListesi.appendChild(olusturulanTr);
     }
 
-
+    //******METHOD*****************************************************************************************************>
     kaydetGuncelle(e) {
         e.preventDefault();
-        console.log(this)
         const kisi = new Kisi(this.ad.value, this.soyad.value, this.mail.value);
-        const sonuc = Util.bosAlanKontrolEt( kisi.soyad, kisi.mail)
+        const sonuc = Util.bosAlanKontrolEt(kisi.ad, kisi.soyad, kisi.mail)
         if (sonuc) {
-            console.log(kisi)
             this.kisiyiEkranaEkle(kisi);
             this.depo.kisiEkle(kisi);
         } else {
             console.log("buralar hep boş")
         }
     }
+    //******METHOD******************************************************************************************************>
+
+    //******METHOD*****************************************************************************************************>
+
 }
 
-//*********************************************************************************************************************
+//*********************************************************************************************************************>
 class Depo {
     constructor() {
-        this.tumKisiler = [];
+        this.tumKisiler = this.kisileriGetir();
 
     }
 
+    //******METHOD********************************************************************************************************>
     kisileriGetir() {
         let tumKisilerLocal;
         if (localStorage.getItem('tumKisiler') === null) {
@@ -79,17 +111,39 @@ class Depo {
         } else {
             tumKisilerLocal = JSON.parse(localStorage.getItem('tumKisiler'));
         }
-        this.tumKisiler = tumKisilerLocal;
+
         return tumKisilerLocal;
     }
 
+    //******METHOD********************************************************************************************************>
     kisiEkle(kisi) {
-        const tumKisilerLocal = this.kisileriGetir();
-        tumKisilerLocal.push(kisi);
-        localStorage.setItem('tumKisiler', JSON.stringify(tumKisilerLocal))
+        this.tumKisiler.push(kisi);
+        localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
     }
+
+    kisiSil(mail) {
+        this.tumKisiler.forEach((kisi, index) => {
+            if (kisi.mail === mail) {
+                this.tumKisiler.splice(index, 1);
+            }
+        });
+        localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+    }
+
+
+//******METHOD******************************************************************************************************>
+kisiGuncelle(guncellenmisKisi, mail)
+{
+    this.tumKisiler.forEach(kisi, index => {
+        if (kisi.mail === mail) {
+            this.tumKisiler[index] = guncellenmisKisi;
+        }
+    })
+    localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+}
 }
 
+//******METHOD********************************************************************************************************>
 document.addEventListener('DOMContentLoaded', function (e) {
     const ekran = new Ekran();
 });
