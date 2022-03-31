@@ -21,19 +21,42 @@ class Util {
     }
 }
 
-//*********************************************************************************************************************>
+//*******CLASS**********************************************************************************************************>
 class Ekran {
     constructor() {
         this.ad = document.getElementById('ad');
         this.soyad = document.getElementById('soyad');
         this.mail = document.getElementById('mail');
         this.ekleGuncelleButton = document.querySelector('.btn')
-        this.form = document.getElementById('form-rehber').addEventListener('submit', this.kaydetGuncelle.bind(this));
+        this.form = document.getElementById('form-rehber');
+        this.form.addEventListener('submit', this.kaydetGuncelle.bind(this));
         this.kisiListesi = document.querySelector(".person-list");
         this.kisiListesi.addEventListener('click', this.guncelleVeyaSil.bind(this));
         this.depo = new Depo();
         this.secilenSatir = undefined;
         this.kisileriEkranaYazdir();
+    }
+
+    //******METHOD******************************************************************************************************>
+    bilgiOlustur(mesaj, durum) {
+        const olusturulabBilgi = document.createElement('div');
+        olusturulabBilgi.textContent = mesaj;
+        olusturulabBilgi.className = 'bilgi';
+
+        if (durum) {
+            olusturulabBilgi.innerHTML = `<div class="alert alert-success mt-2 alert" role="alert">
+  ${mesaj}
+</div>`;
+            document.getElementById('form-rehber').appendChild(olusturulabBilgi);
+        } else {
+            olusturulabBilgi.innerHTML = `<div class="alert alert-danger mt-2" role="alert">
+  ${mesaj}
+</div>`;
+            document.getElementById('form-rehber').appendChild(olusturulabBilgi);
+        }
+        setTimeout(function (){
+            olusturulabBilgi.remove();
+        },2000)
     }
 
     //******METHOD******************************************************************************************************>
@@ -53,13 +76,13 @@ class Ekran {
 
     //******METHOD******************************************************************************************************>
     kisiyiEkrandanGuncelle(kisi) {
-           this.depo.kisiGuncelle(kisi,this.secilenSatir.cells[2].textContent);
+        this.depo.kisiGuncelle(kisi, this.secilenSatir.cells[2].textContent);
 
-            this.secilenSatir.cells[0].textContent=kisi.ad;
-            this.secilenSatir.cells[1].textContent=kisi.soyad;
-            this.secilenSatir.cells[2].textContent=kisi.mail;
+        this.secilenSatir.cells[0].textContent = kisi.ad;
+        this.secilenSatir.cells[1].textContent = kisi.soyad;
+        this.secilenSatir.cells[2].textContent = kisi.mail;
 
-            this.secilenSatir=undefined;
+        this.secilenSatir = undefined;
 
 
     }
@@ -95,6 +118,7 @@ class Ekran {
                         </td>
                     </tr>`;
         this.kisiListesi.appendChild(olusturulanTr);
+
     }
 
     //******METHOD*****************************************************************************************************>
@@ -108,6 +132,7 @@ class Ekran {
             } else {
                 this.kisiyiEkranaEkle(kisi);
                 this.depo.kisiEkle(kisi);
+                this.bilgiOlustur("Kayıt başarı ile oluşturuldu",true);
             }
         } else {
             console.log("buralar hep boş")
@@ -124,7 +149,6 @@ class Ekran {
 class Depo {
     constructor() {
         this.tumKisiler = this.kisileriGetir();
-
     }
 
     //******METHOD********************************************************************************************************>
@@ -143,6 +167,8 @@ class Depo {
     kisiEkle(kisi) {
         this.tumKisiler.push(kisi);
         localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+
+
     }
 
     kisiSil(mail) {

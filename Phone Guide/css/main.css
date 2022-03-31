@@ -22,7 +22,8 @@ form{
 }
 .alert{
     justify-content: center;
-    margin-left: 25%;
+    text-align: center;
+    width: 100%;
 }
 
 .btn-edit{
@@ -38,8 +39,4 @@ form{
     background-color: transparent;
     color: red;
     border: none;
-}
-
-.person-list{
-
 }
