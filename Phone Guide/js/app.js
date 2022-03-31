@@ -43,9 +43,28 @@ class Ekran {
             this.secilenSatir = tiklanmaYeri.parentElement.parentElement;
             this.kisiyiEkrandanSil();
         } else if (tiklanmaYeri.classList.contains('btn-edit')) {
+            this.secilenSatir = tiklanmaYeri.parentElement.parentElement;
+            this.ad.value = this.secilenSatir.cells[0].textContent;
+            this.soyad.value = this.secilenSatir.cells[1].textContent;
+            this.mail.value = this.secilenSatir.cells[2].textContent;
 
         }
     }
+
+    //******METHOD******************************************************************************************************>
+    kisiyiEkrandanGuncelle(kisi) {
+           this.depo.kisiGuncelle(kisi,this.secilenSatir.cells[2].textContent);
+
+            this.secilenSatir.cells[0].textContent=kisi.ad;
+            this.secilenSatir.cells[1].textContent=kisi.soyad;
+            this.secilenSatir.cells[2].textContent=kisi.mail;
+
+            this.secilenSatir=undefined;
+
+
+    }
+
+    //******METHOD******************************************************************************************************>
 
     //******METHOD******************************************************************************************************>
     kisiyiEkrandanSil() {
@@ -84,12 +103,17 @@ class Ekran {
         const kisi = new Kisi(this.ad.value, this.soyad.value, this.mail.value);
         const sonuc = Util.bosAlanKontrolEt(kisi.ad, kisi.soyad, kisi.mail)
         if (sonuc) {
-            this.kisiyiEkranaEkle(kisi);
-            this.depo.kisiEkle(kisi);
+            if (this.secilenSatir) {
+                this.kisiyiEkrandanGuncelle(kisi);
+            } else {
+                this.kisiyiEkranaEkle(kisi);
+                this.depo.kisiEkle(kisi);
+            }
         } else {
             console.log("buralar hep boş")
         }
     }
+
     //******METHOD******************************************************************************************************>
 
     //******METHOD*****************************************************************************************************>
@@ -132,15 +156,15 @@ class Depo {
 
 
 //******METHOD******************************************************************************************************>
-kisiGuncelle(guncellenmisKisi, mail)
-{
-    this.tumKisiler.forEach(kisi, index => {
-        if (kisi.mail === mail) {
-            this.tumKisiler[index] = guncellenmisKisi;
-        }
-    })
-    localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
-}
+    kisiGuncelle(guncellenmisKisi, mail) {
+
+        this.tumKisiler.forEach((kisi, index) => {
+            if (kisi.mail === mail) {
+                this.tumKisiler[index] = guncellenmisKisi;
+            }
+        })
+        localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+    }
 }
 
 //******METHOD********************************************************************************************************>
