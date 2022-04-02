@@ -54,9 +54,9 @@ class Ekran {
 </div>`;
             document.getElementById('form-rehber').appendChild(olusturulabBilgi);
         }
-        setTimeout(function (){
+        setTimeout(function () {
             olusturulabBilgi.remove();
-        },2000)
+        }, 2000)
     }
 
     //******METHOD******************************************************************************************************>
@@ -65,6 +65,7 @@ class Ekran {
         if (tiklanmaYeri.classList.contains('btn-delete')) {
             this.secilenSatir = tiklanmaYeri.parentElement.parentElement;
             this.kisiyiEkrandanSil();
+            this.bilgiOlustur2("Kayıt başarılı bir şekilde silindi", true)
         } else if (tiklanmaYeri.classList.contains('btn-edit')) {
             this.secilenSatir = tiklanmaYeri.parentElement.parentElement;
             this.ad.value = this.secilenSatir.cells[0].textContent;
@@ -76,20 +77,43 @@ class Ekran {
 
     //******METHOD******************************************************************************************************>
     kisiyiEkrandanGuncelle(kisi) {
-        this.depo.kisiGuncelle(kisi, this.secilenSatir.cells[2].textContent);
 
-        this.secilenSatir.cells[0].textContent = kisi.ad;
-        this.secilenSatir.cells[1].textContent = kisi.soyad;
-        this.secilenSatir.cells[2].textContent = kisi.mail;
-
-        this.secilenSatir = undefined;
-
-
+        const sonuc = this.depo.kisiGuncelle(kisi, this.secilenSatir.cells[2].textContent);
+        if (sonuc) {
+            this.secilenSatir.cells[0].textContent = kisi.ad;
+            this.secilenSatir.cells[1].textContent = kisi.soyad;
+            this.secilenSatir.cells[2].textContent = kisi.mail;
+            this.bilgiOlustur2("Kayıt başarılı bir şekilde güncellendi", false);
+            this.secilenSatir = undefined;
+        } else {
+            this.bilgiOlustur("Bu mail adresi başka bir kullanıcaya ait", false);
+        }
     }
 
     //******METHOD******************************************************************************************************>
+    bilgiOlustur2(mesaj, durum) {
+        const olusturulanBilgi = document.createElement('div');
+        olusturulanBilgi.textContent = mesaj;
+        olusturulanBilgi.className = 'bilgi';
 
-    //******METHOD******************************************************************************************************>
+        if (durum) {
+            olusturulanBilgi.innerHTML = `<div class="alert alert-danger mt-2 alert" role="alert">
+  ${mesaj}
+</div>`;
+            document.getElementById('form-rehber').appendChild(olusturulanBilgi);
+        } else {
+            olusturulanBilgi.innerHTML = `<div class="alert alert-secondary mt-2" role="alert">
+  ${mesaj}
+</div>`;
+            document.getElementById('form-rehber').appendChild(olusturulanBilgi);
+        }
+        setTimeout(function () {
+            olusturulanBilgi.remove();
+        }, 2000)
+    }
+
+
+//******METHOD******************************************************************************************************>
     kisiyiEkrandanSil() {
         this.secilenSatir.remove();
         const silinecekMail = this.secilenSatir.cells[2].textContent;
@@ -98,13 +122,13 @@ class Ekran {
         this.secilenSatir = undefined;
     }
 
-    //******METHOD******************************************************************************************************>
+//******METHOD******************************************************************************************************>
     kisileriEkranaYazdir() {
         this.depo.tumKisiler.forEach(kisi =>
             this.kisiyiEkranaEkle(kisi));
     }
 
-    //******METHOD*****************************************************************************************************>
+//******METHOD*****************************************************************************************************>
     kisiyiEkranaEkle(kisi) {
         const olusturulanTr = document.createElement('tr');
         olusturulanTr.innerHTML =
@@ -121,7 +145,7 @@ class Ekran {
 
     }
 
-    //******METHOD*****************************************************************************************************>
+//******METHOD*****************************************************************************************************>
     kaydetGuncelle(e) {
         e.preventDefault();
         const kisi = new Kisi(this.ad.value, this.soyad.value, this.mail.value);
@@ -130,18 +154,23 @@ class Ekran {
             if (this.secilenSatir) {
                 this.kisiyiEkrandanGuncelle(kisi);
             } else {
-                this.kisiyiEkranaEkle(kisi);
-                this.depo.kisiEkle(kisi);
-                this.bilgiOlustur("Kayıt başarı ile oluşturuldu",true);
+                const sonuc = this.depo.kisiEkle(kisi);
+                if (sonuc) {
+                    this.kisiyiEkranaEkle(kisi);
+                    this.bilgiOlustur("Kayıt başarı ile oluşturuldu", true);
+                } else {
+                    this.bilgiOlustur("Bu mail kullanımda!", false);
+                }
+
             }
         } else {
-            console.log("buralar hep boş")
+            this.bilgiOlustur("Boş alanları doldurunuz!", false);
         }
     }
 
-    //******METHOD******************************************************************************************************>
+//******METHOD******************************************************************************************************>
 
-    //******METHOD*****************************************************************************************************>
+//******METHOD*****************************************************************************************************>
 
 }
 
@@ -149,6 +178,19 @@ class Ekran {
 class Depo {
     constructor() {
         this.tumKisiler = this.kisileriGetir();
+    }
+
+    //******METHOD********************************************************************************************************>
+    emailEssizMi(mail) {
+        const sonuc = this.tumKisiler.find(kisi => {
+            return kisi.mail === mail;
+
+        });
+        if (sonuc) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     //******METHOD********************************************************************************************************>
@@ -165,10 +207,13 @@ class Depo {
 
     //******METHOD********************************************************************************************************>
     kisiEkle(kisi) {
-        this.tumKisiler.push(kisi);
-        localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
-
-
+        if (this.emailEssizMi(kisi.mail)) {
+            this.tumKisiler.push(kisi);
+            localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     kisiSil(mail) {
@@ -184,12 +229,17 @@ class Depo {
 //******METHOD******************************************************************************************************>
     kisiGuncelle(guncellenmisKisi, mail) {
 
-        this.tumKisiler.forEach((kisi, index) => {
-            if (kisi.mail === mail) {
-                this.tumKisiler[index] = guncellenmisKisi;
-            }
-        })
-        localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+        if (this.emailEssizMi(guncellenmisKisi.mail)) {
+            this.tumKisiler.forEach((kisi, index) => {
+                if (kisi.mail === mail) {
+                    this.tumKisiler[index] = guncellenmisKisi;
+                }
+            })
+            localStorage.setItem('tumKisiler', JSON.stringify(this.tumKisiler));
+            return true;
+        }else {
+            return false;
+        }
     }
 }
 
