@@ -15,3 +15,7 @@ class UnsplashApi {
             return photosResponse.data.urls.regular;
     }
 }
+ export default function runUnsplashApi(){
+    const newPhoto= new UnsplashApi().randomGetPhoto();
+    return newPhoto;
+ }

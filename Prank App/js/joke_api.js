@@ -16,5 +16,10 @@ class Jokeapi {
     }
 }
 
+export default function runJokeApi(){
+    const newJoke= new Jokeapi().randomGetJoke();
+    return newJoke;
+}
+
 
 

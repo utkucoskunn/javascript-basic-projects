@@ -1,21 +1,26 @@
+import runUnsplashApi from "./UnsplashApi.js";
+import runJokeApi from "./joke_api.js";
+
 class Ekran {
     constructor() {
         this.getJokeBtn = document.querySelector('.get-joke-btn')
             .addEventListener('click', () => this.getJoke());
     }
 
+
     async getJoke() {
-        const randomPicture = await new UnsplashApi().randomGetPhoto();
-        const randomJoke = await new Jokeapi().randomGetJoke();
-        const allResult={
+        const randomPicture = await runUnsplashApi();
+        const randomJoke = await runJokeApi();
+        const allResult = {
             randomPicture,
             randomJoke
         }
 
         this.printScreen(allResult)
     }
-    printScreen(allResult){
-        document.querySelector('.result').innerHTML=
+
+    printScreen(allResult) {
+        document.querySelector('.result').innerHTML =
             `  <div class="card mb-3 justify-content-center" style="max-width: 1000px;">
                 <div class="row g-0">
                     <div class="col-md-4">
@@ -30,6 +35,9 @@ class Ekran {
                     </div>
                 </div>`;
     }
+}
+export default function runApp (){
+   new Ekran();
 }
 
 
